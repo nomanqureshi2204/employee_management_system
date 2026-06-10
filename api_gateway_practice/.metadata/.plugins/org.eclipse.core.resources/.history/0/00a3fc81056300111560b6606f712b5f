@@ -1,0 +1,125 @@
+package com.ems.dashboard.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import com.ems.dashboard.dto.AdminOverviewDto;
+import com.ems.dashboard.dto.ClientDashboardResponseDto;
+import com.ems.dashboard.dto.ClientResponseDto;
+import com.ems.dashboard.dto.EmployeeDashboardDto;
+import com.ems.dashboard.dto.EmployeeResponseDto;
+import com.ems.dashboard.dto.ProjectResponseDto;
+import com.ems.dashboard.dto.ProjectWithEmployeeDto;
+import com.ems.dashboard.feign.ClientFeignClient;
+import com.ems.dashboard.feign.EmployeeFeignClient;
+import com.ems.dashboard.feign.ProjectFeignCleint;
+
+@Service
+public class DashboardService {
+
+	@Autowired
+	private EmployeeFeignClient employeeFeignClient;
+
+	@Autowired
+	private ProjectFeignCleint projectfeignClient;
+
+	@Autowired
+	private ClientFeignClient clientFeignClient;
+
+	public AdminOverviewDto getAdminOverview() {
+
+		Long totalEmployees = employeeFeignClient.getTotalEmployees();
+		Long totalProject = projectfeignClient.getTotalProjects();
+		Long totalClients = clientFeignClient.getTotalClients();
+
+		AdminOverviewDto dto = new AdminOverviewDto();
+
+		dto.setTotalClients(totalClients);
+		dto.setTotalEmployees(totalEmployees);
+		dto.setTotalProjects(totalProject);
+
+		return dto;
+
+	}
+
+	// Employee Dashboard
+	public EmployeeDashboardDto getEmployeeDashboard() {
+
+		// logged in employee email
+		Authentication authetication = SecurityContextHolder.getContext().getAuthentication();
+
+		// Email stored in JWT
+		String email = authetication.getName();
+
+		// Get employee details
+		EmployeeResponseDto employee = employeeFeignClient.getEmployeeByEmail(email);
+
+		ProjectResponseDto project = null;
+
+		try {
+			// Get project details using employee id
+			project = employeeFeignClient.getProjectDetailsByEmployeeId(employee.getEmployeeId());
+		} catch (Exception e) {
+			// Employee may be on bench
+			project = null;
+		}
+		EmployeeDashboardDto dashboard = new EmployeeDashboardDto();
+		dashboard.setEmployee(employee);
+		dashboard.setProject(project);
+
+		return dashboard;
+	}
+	
+	
+    //Client dashboard 
+	public ClientDashboardResponseDto getClientDashboard(String email) {
+		// 1. Client fetch
+		ClientResponseDto client = clientFeignClient.getClientByEmail(email);
+		
+		//2. Projectcs fetch 
+		List<ProjectResponseDto>projects = projectfeignClient.getProjectsByClientId(client.getClientId());
+		
+		List<ProjectWithEmployeeDto> projectList = new ArrayList<>();
+		
+		//3. Every project employees fetch 
+		for(ProjectResponseDto project : projects) {
+			List<EmployeeResponseDto>employees = employeeFeignClient
+					.getEmployeesByProjectId(project.getProjectId());
+			
+			ProjectWithEmployeeDto dto = new ProjectWithEmployeeDto();
+			
+			dto.setProjectId(project.getProjectId());
+			dto.setProjectName(project.getProjectName());
+			dto.setEmployees(employees);
+			
+			projectList.add(dto);
+		}
+		
+		//4. final response 
+		ClientDashboardResponseDto response = new ClientDashboardResponseDto();
+		
+		response.setClientId(client.getClientId());
+		response.setClientName(client.getClientName());
+		response.setEmail(client.getEmail());
+		
+		response.setProjects(projectList);
+		
+		return response;
+
+	}
+}
+
+
+
+
+
+
+
+
+
+

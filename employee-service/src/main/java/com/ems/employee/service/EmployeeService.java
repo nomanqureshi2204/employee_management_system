@@ -1,0 +1,251 @@
+package com.ems.employee.service;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.ems.employee.dto.CreateUserRequest;
+import com.ems.employee.dto.EmployeeRequestDto;
+import com.ems.employee.dto.EmployeeResponseDto;
+import com.ems.employee.dto.EmployeeUpdateDto;
+import com.ems.employee.dto.ProjectResponseDto;
+import com.ems.employee.entity.Employee;
+import com.ems.employee.exception.EmployeeAlreadyExistsException;
+import com.ems.employee.exception.EmployeeNotFoundException;
+import com.ems.employee.feign.AuthFeignClient;
+import com.ems.employee.feign.ProjectFeignClient;
+import com.ems.employee.mapper.EmployeeMapper;
+import com.ems.employee.repository.EmployeeRepository;
+
+@Service
+public class EmployeeService {
+
+    @Autowired
+    private EmployeeRepository repository;
+    
+    @Autowired
+    private ProjectFeignClient projectFeignClient;
+    
+    @Autowired
+    private AuthFeignClient authFeignClient;
+
+    // Add Employee
+    public EmployeeResponseDto addEmployee(EmployeeRequestDto dto) {
+
+        if (repository.existsByEmployeeEmail(dto.getEmployeeEmail())) {
+            throw new EmployeeAlreadyExistsException("Email already exists");
+        }
+
+        String employeeId = generateEmployeeId();
+
+        Employee employee = new Employee();
+
+        employee.setEmployeeId(employeeId);
+        employee.setEmployeeName(dto.getEmployeeName());
+        employee.setEmployeeDept(dto.getEmployeeDept());
+        employee.setEmployeeEmail(dto.getEmployeeEmail());
+        employee.setEmployeePhone(dto.getEmployeePhone());
+        employee.setDateOfJoining(LocalDate.now());
+
+        Employee savedEmployee = repository.save(employee);
+        
+        //create user in Auth service 
+        CreateUserRequest request = new CreateUserRequest();
+        
+        request.setName(savedEmployee.getEmployeeName());
+        request.setEmail(savedEmployee.getEmployeeEmail());
+        request.setRole("EMPLOYEE");
+        
+        authFeignClient.createUser(request);
+
+        return EmployeeMapper.toDto(savedEmployee);
+    }
+
+    // Get All Employees
+    public List<EmployeeResponseDto> getallEmployees() {
+
+        return repository.findAll()
+                .stream()
+                .map(EmployeeMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    // Get Employee By EmployeeId
+    public EmployeeResponseDto getEmployeeByEmployeeId(String employeeId) {
+
+        Employee employee = repository.findByEmployeeId(employeeId)
+                .orElseThrow(() ->
+                        new EmployeeNotFoundException("Employee not found"));
+
+        return EmployeeMapper.toDto(employee);
+    }
+
+    // Get Employee By Email
+    public EmployeeResponseDto getEmployeeByEmail(String email) {
+
+        Employee employee = repository.findByEmployeeEmail(email)
+                .orElseThrow(() ->
+                        new EmployeeNotFoundException("Employee not found"));
+
+        return EmployeeMapper.toDto(employee);
+    }
+
+    // Get Employees By Date Range
+    public List<EmployeeResponseDto> getEmployeeByDateRange(
+            LocalDate startDate,
+            LocalDate endDate) {
+
+        List<Employee> employees =
+                repository.findByDateOfJoiningBetween(
+                        startDate,
+                        endDate);
+
+        return employees.stream()
+                .map(EmployeeMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    // Update Employee
+    public EmployeeResponseDto updateEmployee(
+            String employeeId,
+            EmployeeUpdateDto dto) {
+
+        Employee employee = repository.findByEmployeeId(employeeId)
+                .orElseThrow(() ->
+                        new EmployeeNotFoundException("Employee not found"));
+
+        employee.setEmployeeName(dto.getEmployeeName());
+        employee.setEmployeeDept(dto.getEmployeeDept());
+        employee.setEmployeePhone(dto.getEmployeePhone());
+
+        Employee updatedEmployee = repository.save(employee);
+
+        return EmployeeMapper.toDto(updatedEmployee);
+    }
+
+    // Delete Employee
+    public String deleteEmployee(String employeeId) {
+
+        Employee employee = repository.findByEmployeeId(employeeId)
+                .orElseThrow(() ->
+                        new EmployeeNotFoundException("Employee not found"));
+
+        repository.delete(employee);
+
+        return "Employee deleted successfully";
+    }
+    
+    // Get Project Details By EmployeeId 
+    public ProjectResponseDto getProjectDetailsByEmployeeId(String employeeId) {
+    	
+    	//find Employee 
+    	Employee employee = repository.findByEmployeeId(employeeId)
+    						.orElseThrow(() -> new EmployeeNotFoundException("Employee not Found"));
+    	
+    	// Employee is on Bench 
+    	if(employee.getProjectId() == null) {
+    		
+    		throw new RuntimeException("Employee is currently on bench");
+    	}
+    	
+    	// call project service 
+    	return projectFeignClient.getProjectById(employee.getProjectId());
+    }
+    
+    
+    // Release Employee From Project 
+    public  EmployeeResponseDto releaseEmployeeFromProject(String employeeId) {
+    		
+    	//find employee 
+    	
+    	Employee employee = repository.findByEmployeeId(employeeId)
+    			.orElseThrow(()-> new EmployeeNotFoundException("Employee not found"));
+    	
+    	//check if employee is already on bench 
+    	if(employee.getProjectId() == null) {
+    		throw new RuntimeException("Employee is already on bench");
+    	}
+    	
+    	//Realease employee from project 
+    	employee.setProjectId(null);
+    		 
+    	Employee savedEmployee = repository.save(employee);
+    	
+    	//convert Entity to DTO 
+    	return EmployeeMapper.toDto(savedEmployee);
+    }
+
+    // Get Bench Employees
+    public List<EmployeeResponseDto> getBenchEmployee() {
+
+        return repository.findByProjectIdIsNull()
+                .stream()
+                .map(EmployeeMapper::toDto)
+                .collect(Collectors.toList());
+    }
+    
+    // admin can onboard employee on project 
+    public EmployeeResponseDto onboardEmployee(
+    					String employeeId,String projectId) {
+    	//find employee
+    	Employee employee = repository.findByEmployeeId(employeeId)
+    			.orElseThrow(()->new EmployeeNotFoundException("Employee not found"));
+    	
+    	// check if employee already assigned 
+    	
+    	if(employee.getProjectId()!=null) {
+    		throw new RuntimeException("Employee is already to a project");
+    	}
+    	
+    	// Assign project 
+    	employee.setProjectId(projectId);
+    	
+    	// saved updated employee 
+    	Employee savedEmployee = repository.save(employee);
+    	
+    	//convert Entity  to DTO 
+    	return EmployeeMapper.toDto(savedEmployee);
+    	
+    	
+    }
+    
+    // Get Employees By Project Id 
+    public List<EmployeeResponseDto> getEmployeesByProjectId(String projectId) {
+
+        List<Employee> employees = repository.findByProjectId(projectId);
+
+        if (employees.isEmpty()) {
+            throw new EmployeeNotFoundException(
+                    "No employees found for project ID: " + projectId);
+        }
+
+        return employees.stream()
+                .map(EmployeeMapper::toDto)
+                .collect(Collectors.toList());
+    }
+    
+    // get total no of employees 
+    public long getTotalEmployees() {
+    	return repository.count();
+    }
+
+    // Employee ID Generation
+    private String generateEmployeeId() {
+
+        String lastId = repository.findLastEmployeeId();
+
+        int nextNumber = 1;
+
+        if (lastId != null) {
+
+            String number = lastId.replace("JTC-", "");
+
+            nextNumber = Integer.parseInt(number) + 1;
+        }
+
+        return String.format("JTC-%03d", nextNumber);
+    }
+}

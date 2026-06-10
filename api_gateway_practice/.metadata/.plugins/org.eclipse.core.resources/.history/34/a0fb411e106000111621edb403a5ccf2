@@ -1,0 +1,14 @@
+package com.ems.dashboard.feign;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import com.ems.dashboard.dto.ClientResponseDto;
+
+@FeignClient(name="CLIENT-SERVICE")
+public interface ClientFeign {
+		
+	@GetMapping("/clients/{clientId}")
+		ClientResponseDto getClientById(@PathVariable String clientId);
+}

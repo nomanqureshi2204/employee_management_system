@@ -1,0 +1,28 @@
+package com.ems.dashboard.dto;
+
+import java.util.List;
+
+public class ClientDashboardDto {
+	 
+	private clientResponseDto client;
+	
+	private List<ProjectDetailsDto>project;
+
+	public clientResponseDto getClient() {
+		return client;
+	}
+
+	public void setClient(clientResponseDto client) {
+		this.client = client;
+	}
+
+	public List<ProjectDetailsDto> getProject() {
+		return project;
+	}
+
+	public void setProject(List<ProjectDetailsDto> project) {
+		this.project = project;
+	}
+	
+	
+}

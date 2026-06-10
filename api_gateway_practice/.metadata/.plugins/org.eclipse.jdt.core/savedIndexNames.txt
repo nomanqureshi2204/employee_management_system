@@ -1,0 +1,2 @@
+INDEX VERSION 1.134+C:\JTC\my_projects\_employee_management_system\api_gateway_practice\.metadata\.plugins\org.eclipse.jdt.core
+1865797976.index

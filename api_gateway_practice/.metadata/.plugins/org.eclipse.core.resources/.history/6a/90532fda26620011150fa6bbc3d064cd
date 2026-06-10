@@ -1,0 +1,5 @@
+package com.ems.employee.feign;
+
+public class CreateUserRequest {
+
+}

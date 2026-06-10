@@ -1,0 +1,5 @@
+package com.ems.client.config;
+
+public class FeignConfig {
+
+}

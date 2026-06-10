@@ -1,0 +1,54 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: API-GATEWAY
+
+  cloud:
+    gateway:
+      routes:
+
+        # AUTH SERVICE
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth/**
+
+        # EMPLOYEE SERVICE
+        - id: employee-service
+          uri: lb://EMPLOYEE-SERVICE
+          predicates:
+            - Path=/employees/**
+
+        # PROJECT SERVICE
+        - id: project-service
+          uri: lb://PROJECT-SERVICE
+          predicates:
+            - Path=/projects/**
+
+        # CLIENT SERVICE
+        - id: client-service
+          uri: lb://CLIENT-SERVICE
+          predicates:
+            - Path=/clients/**
+
+        # DASHBOARD SERVICE
+        - id: dashboard-service
+          uri: lb://DASHBOARD-SERVICE
+          predicates:
+            - Path=/dashboard/**
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+  api-docs:
+    enabled: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true

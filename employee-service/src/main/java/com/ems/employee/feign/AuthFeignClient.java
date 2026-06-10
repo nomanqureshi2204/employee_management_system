@@ -1,0 +1,14 @@
+package com.ems.employee.feign;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import com.ems.employee.dto.CreateUserRequest;
+
+@FeignClient(name = "AUTH-SERVICE")
+public interface AuthFeignClient {
+	
+	@PostMapping("/auth/internal/create-user")
+	String createUser(@RequestBody CreateUserRequest request);
+}

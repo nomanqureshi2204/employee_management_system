@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;com.ems.client.feign.AuthFeignClient&apos; to &apos;AuthFiegnClient&apos;&#x0D;&#x0A;- Original project: &apos;client-service&apos;&#x0D;&#x0A;- Original element: &apos;com.ems.client.feign.AuthFeignClient&apos;&#x0D;&#x0A;- Renamed element: &apos;com.ems.client.feign.AuthFiegnClient&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;AuthFeignClient&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.ems.client.feign{AuthFeignClient.java[AuthFeignClient" matchStrategy="1" name="AuthFiegnClient" qualified="false" references="true" similarDeclarations="false" stamp="1780805864065" textual="false" version="1.0"/>
+</session>

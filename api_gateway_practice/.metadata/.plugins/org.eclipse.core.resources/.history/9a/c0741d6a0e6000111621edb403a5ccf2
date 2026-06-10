@@ -1,0 +1,5 @@
+package com.ems.dashboard.feign;
+
+public class EmployeeFeign {
+
+}

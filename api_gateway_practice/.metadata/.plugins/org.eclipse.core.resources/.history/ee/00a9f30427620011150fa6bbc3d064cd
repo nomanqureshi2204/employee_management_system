@@ -1,0 +1,5 @@
+package com.ems.client.feign;
+
+public interface AuthFeignClient {
+
+}

@@ -1,0 +1,106 @@
+package com.ems.client.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.ems.client.dto.ClientRequestDto;
+import com.ems.client.dto.ClientResponseDto;
+import com.ems.client.dto.ProjectResponseDto;
+import com.ems.client.service.ClientService;
+
+@RestController
+@RequestMapping("/clients")
+public class ClientController {
+
+    @Autowired
+    private ClientService service;
+
+   
+    // CREATE CLIENT
+ 
+    @PostMapping
+    public ClientResponseDto createClient(
+            @RequestBody ClientRequestDto dto) {
+
+        return service.createClient(dto);
+    }
+
+ 
+    // GET ALL CLIENTS
+
+    @GetMapping
+    public List<ClientResponseDto> getAllClients() {
+
+        return service.getAllClients();
+    }
+
+    
+    // GET CLIENT BY ID
+
+    @GetMapping("/{clientId}")
+    public ClientResponseDto getClientById(
+            @PathVariable String clientId) {
+
+        return service.getClientById(clientId);
+    }
+
+    // ============================================
+    // UPDATE CLIENT
+    // ============================================
+    @PutMapping("/{clientId}")
+    public ClientResponseDto updateClient(
+            @PathVariable String clientId,
+            @RequestBody ClientRequestDto dto) {
+
+        return service.updateClient(clientId, dto);
+    }
+
+    
+    // DELETE CLIENT
+    
+    @DeleteMapping("/{clientId}")
+    public String deleteClient(
+            @PathVariable String clientId) {
+
+        return service.deleteClient(clientId);
+    }
+    
+    //get projects by client id 
+    @GetMapping("/{clientId}/projects")
+    public List<ProjectResponseDto>getProjectByclientId(@PathVariable String clientId){
+    	return service.getProjectByClientId(clientId);
+    }
+    
+    
+    @GetMapping("/exists/{clientId}")
+    public Boolean existsByClientId(@PathVariable String clientId) {
+
+        return service.existsByClientId(clientId);
+    }
+    
+    //get total no of clients 
+    @GetMapping("/count")
+    public ResponseEntity<Long> getTotalClients() {
+
+        return ResponseEntity.ok(
+                service.getTotalClients()
+        );
+    }
+    
+    //get client by email 
+    @GetMapping("/email/{email}")
+    public ClientResponseDto getclientByEmail(@PathVariable String email) {
+    	System.out.println("**************controller hit ************"+email);
+    	return service.getClientByEmail(email);
+    }
+}
+
+
+
+
+
+
+

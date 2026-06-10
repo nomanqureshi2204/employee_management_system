@@ -1,0 +1,73 @@
+package com.ems.project.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.ems.project.dto.ClientResponseDto;
+import com.ems.project.dto.EmployeeResponseDto;
+import com.ems.project.dto.ProjectRequestDto;
+import com.ems.project.dto.ProjectResponseDto;
+import com.ems.project.service.ProjectService;
+
+import jakarta.validation.Valid;
+
+@RestController
+@RequestMapping("/projects") // base url
+public class ProjectController {
+
+	@Autowired
+	private ProjectService service;
+
+	// create project
+	@PostMapping
+	public ProjectResponseDto createProject(@Valid @RequestBody ProjectRequestDto dto) {
+		return service.createProject(dto);
+	}
+
+	// get all projects
+	@GetMapping
+	public List<ProjectResponseDto> getAllProjects() {
+		return service.getAllProjects();
+	}
+
+	// get project by id
+	@GetMapping("/{projectId}")
+	public ResponseEntity<ProjectResponseDto> getProjectById(@PathVariable String projectId) {
+		return ResponseEntity.ok(service.getProjectById(projectId));
+	}
+
+	// update project
+	@PutMapping("/{projectId}")
+	public ProjectResponseDto updateProject(@PathVariable String projectId, @Valid @RequestBody ProjectRequestDto dto) {
+		return service.updateProject(projectId, dto);
+	}
+
+	// delete project
+	@DeleteMapping("{projectId}")
+	public String deleteProject(@PathVariable String projectId) {
+		return service.deleteProject(projectId);
+	}
+
+	// get the clients information of the basis of project id
+	@GetMapping("/{projectId}/client")
+	public ResponseEntity<ClientResponseDto> getClientByProjecctId(@PathVariable String projectId) {
+
+		return ResponseEntity.ok(service.getClientByProjectId(projectId));
+	}
+
+	// all the employee on the basis of project-id
+	@GetMapping("/{projectId}/employees")
+	public ResponseEntity<List<EmployeeResponseDto>> getEmployeeByProjectId(@PathVariable String projectId) {
+		return ResponseEntity.ok(service.getEmployeesByProjectId(projectId));
+	}
+
+	// get the project details from the client-id
+	@GetMapping("/client/{clientId}")
+	public ResponseEntity<List<ProjectResponseDto>> getProjectByClientId(@PathVariable String clientId) {
+		return ResponseEntity.ok(service.getProjectsByClientId(clientId));
+	}
+
+}

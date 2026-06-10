@@ -1,0 +1,30 @@
+package com.example.gateway.config;
+
+import org.springdoc.core.models.GroupedOpenApi;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class Securityconfig {
+
+    // 🔥 AUTH-SERVICE APIs group
+    @Bean
+    public GroupedOpenApi authServiceApi() {
+        return GroupedOpenApi.builder()
+                .group("auth-service")
+                .pathsToMatch("/auth/**")
+                .build();
+    }
+
+    // 👉 Future ke liye example (optional)
+    // Agar tum order-service add karte ho to ye ready hai
+    @Bean
+    public GroupedOpenApi orderServiceApi() {
+        return GroupedOpenApi.builder()
+                .group("order-service")
+                .pathsToMatch("/order/**")
+                .build();
+    }
+
+    // 👉 Agar aur services add karni ho to bas same pattern follow karna
+}

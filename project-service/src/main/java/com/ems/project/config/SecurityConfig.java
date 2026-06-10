@@ -1,0 +1,128 @@
+package com.ems.project.config;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.ems.common.filter.JwtAuthenticationFilter;
+import com.ems.common.security.CustomAccessDeniedHandler;
+
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
+
+@Configuration
+public class SecurityConfig {
+
+    @Autowired
+    private JwtAuthenticationFilter jwtFilter;
+    
+    @Autowired CustomAccessDeniedHandler accessDeniedHandler;
+
+    @Bean
+    public SecurityFilterChain filterChain(
+            HttpSecurity http) throws Exception {
+
+        http
+
+            // disable csrf
+            .csrf(csrf -> csrf.disable())
+
+            // authorization rules
+            .authorizeHttpRequests(auth -> auth
+
+                    // public swagger apis
+                    .requestMatchers(
+                            "/swagger-ui/**",
+                            "/swagger-ui.html",
+                            "/v3/api-docs/**",
+                            "/v3/api-docs",
+                            "/swagger-resources/**",
+                            "/swagger-resources",
+                            "/configuration/ui",
+                            "/configuration/security",
+                            "/webjars/**"
+                    ).permitAll()
+
+                    // employee APIs only ADMIN
+                    .requestMatchers("/projects/**")
+                    .hasRole("ADMIN")
+
+                    // any other request authenticated
+                    .anyRequest()
+                    .authenticated()
+            )
+            
+            .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler))
+
+            // jwt filter
+            .addFilterBefore(
+                    jwtFilter,
+                    UsernamePasswordAuthenticationFilter.class
+            )
+
+            // stateless session
+            .sessionManagement(session ->
+                    session.sessionCreationPolicy(
+                            SessionCreationPolicy.STATELESS
+                    ));
+
+        return http.build();
+    }
+
+    // ============================================
+    // SWAGGER CONFIG
+    // ============================================
+
+    @Bean
+    public OpenAPI customOpenAPI() {
+
+        return new OpenAPI()
+
+                .info(
+                        new Info()
+                                .title("EMS Employee Service")
+                                .version("1.0")
+                )
+
+                .servers(
+                        List.of(
+                                new Server()
+                                        .url("http://localhost:8080")
+                        )
+                )
+
+                .addSecurityItem(
+                        new SecurityRequirement()
+                                .addList("Bearer Authentication")
+                )
+
+                .components(
+                        new io.swagger.v3.oas.models.Components()
+
+                                .addSecuritySchemes(
+                                        "Bearer Authentication",
+
+                                        new SecurityScheme()
+
+                                                .name("Authorization")
+
+                                                .type(SecurityScheme.Type.HTTP)
+
+                                                .scheme("bearer")
+
+                                                .bearerFormat("JWT")
+                                )
+                );
+    }
+}

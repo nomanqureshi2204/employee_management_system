@@ -1,0 +1,5 @@
+package com.ems.dashboard.config;
+
+public class FeignClient {
+
+}
