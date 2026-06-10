@@ -1,37 +1,85 @@
-name: CI Pipeline
+name: EMS Multi-Service CI Pipeline
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    branches: [ "master" ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
 
+  common-library:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
           java-version: '17'
+          distribution: 'temurin'
 
-      # 1️⃣ FIRST BUILD COMMON LIBRARY
       - name: Build Common Library
-        run: mvn -f common-library/pom.xml clean install -DskipTests
+        run: cd common-library && mvn clean install -DskipTests
 
-      # 2️⃣ AUTH SERVICE
+
+  auth-service:
+    needs: common-library
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
       - name: Build Auth Service
-        run: mvn -f auth-service/pom.xml clean install -DskipTests
+        run: cd auth-service && mvn clean install -DskipTests
 
-      # 3️⃣ PROJECT SERVICE
+
+  project-service:
+    needs: common-library
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
       - name: Build Project Service
-        run: mvn -f project-service/pom.xml clean install -DskipTests
+        run: cd project-service && mvn clean install -DskipTests
 
-      # 4️⃣ EUREKA SERVER
+
+  api-gateway:
+    needs: common-library
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build API Gateway
+        run: cd api-gateway && mvn clean install -DskipTests
+
+
+  eureka-server:
+    needs: common-library
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
       - name: Build Eureka Server
-        run: mvn -f eureka-server/pom.xml clean install -DskipTests
+        run: cd eureka-server && mvn clean install -DskipTests
