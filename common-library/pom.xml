@@ -5,6 +5,14 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- ✅ Spring Boot Parent (IMPORTANT for Java version + dependency management) -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.5</version>
+        <relativePath/>
+    </parent>
+
     <groupId>com.ems</groupId>
     <artifactId>common-library</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -60,5 +68,19 @@
         </dependency>
 
     </dependencies>
+
+    <!-- 🔥 FORCE JAVA 17 COMPILATION (MOST IMPORTANT PART) -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
