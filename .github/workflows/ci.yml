@@ -1,13 +1,7 @@
-name: EMS Multi-Service CI Pipeline
-
-on:
-  push:
-    branches: [ "master" ]
-
 jobs:
-
-  common-library:
+  build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -18,68 +12,16 @@ jobs:
           distribution: 'temurin'
 
       - name: Build Common Library
-        run: cd common-library && mvn clean install -DskipTests
-
-
-  auth-service:
-    needs: common-library
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
+        run: mvn -f common-library/pom.xml clean install -DskipTests
 
       - name: Build Auth Service
-        run: cd auth-service && mvn clean install -DskipTests
-
-
-  project-service:
-    needs: common-library
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
+        run: mvn -f auth-service/pom.xml clean install -DskipTests
 
       - name: Build Project Service
-        run: cd project-service && mvn clean install -DskipTests
+        run: mvn -f project-service/pom.xml clean install -DskipTests
 
+      - name: Build Gateway
+        run: mvn -f api-gateway/pom.xml clean install -DskipTests
 
-  api-gateway:
-    needs: common-library
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Build API Gateway
-        run: cd api-gateway && mvn clean install -DskipTests
-
-
-  eureka-server:
-    needs: common-library
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Build Eureka Server
-        run: cd eureka-server && mvn clean install -DskipTests
+      - name: Build Eureka
+        run: mvn -f eureka-server/pom.xml clean install -DskipTests
