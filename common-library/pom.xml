@@ -15,7 +15,7 @@
         <spring.boot.version>3.5.14</spring.boot.version>
     </properties>
 
-    <!-- 🔥 IMPORTANT: Spring Boot dependency management -->
+    <!-- 🔥 BOOT DEPENDENCY MANAGEMENT -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -30,19 +30,19 @@
 
     <dependencies>
 
-        <!-- 🔥 SPRING CORE (FIX FOR @Component, @Autowired) -->
+        <!-- 🔥 SPRING CORE -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
 
-        <!-- 🔥 SPRING WEB (FIX FOR FILTERS) -->
+        <!-- 🔥 SPRING WEB (FIX FOR FILTER + SERVLET) -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
         </dependency>
 
-        <!-- 🔥 SPRING SECURITY (MAIN FIX) -->
+        <!-- 🔥 SPRING SECURITY -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
@@ -51,6 +51,22 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
+        </dependency>
+
+        <!-- 🔥 SERVLET API (FIX MAIN ERROR) -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- 🔥 LOMBOK (FIX FOR ApiResponse) -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.32</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- 🔥 JWT -->
@@ -74,18 +90,12 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- validation -->
-        <dependency>
-            <groupId>jakarta.validation</groupId>
-            <artifactId>jakarta.validation-api</artifactId>
-            <version>3.0.2</version>
-        </dependency>
-
     </dependencies>
 
     <build>
         <plugins>
-            <!-- 🔥 FIX: Java 17 compile explicitly -->
+
+            <!-- 🔥 JAVA 17 FIX -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -93,8 +103,19 @@
                 <configuration>
                     <source>17</source>
                     <target>17</target>
+
+                    <!-- 🔥 IMPORTANT for Lombok -->
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.32</version>
+                        </path>
+                    </annotationProcessorPaths>
+
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 
