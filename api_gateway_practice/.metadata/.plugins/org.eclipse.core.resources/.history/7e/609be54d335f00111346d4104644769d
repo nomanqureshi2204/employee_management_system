@@ -1,5 +1,0 @@
-package com.ems.project.dto;
-
-public class EmployeeResponseDto {
-
-}

@@ -1,5 +1,0 @@
-package com.ems.dashboard.feign;
-
-public interface ProjectFeign {
-
-}

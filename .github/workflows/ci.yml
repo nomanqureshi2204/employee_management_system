@@ -1,3 +1,9 @@
+name: EMS CI Pipeline
+
+on:
+  push:
+    branches: [ "master" ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,6 +25,15 @@ jobs:
 
       - name: Build Project Service
         run: mvn -f project-service/pom.xml clean install -DskipTests
+
+      - name: Build Employee Service
+        run: mvn -f employee-service/pom.xml clean install -DskipTests
+
+      - name: Build Client Service
+        run: mvn -f client-service/pom.xml clean install -DskipTests
+
+      - name: Build Dashboard Service
+        run: mvn -f dashboard-service/pom.xml clean install -DskipTests
 
       - name: Build Gateway
         run: mvn -f api-gateway/pom.xml clean install -DskipTests
