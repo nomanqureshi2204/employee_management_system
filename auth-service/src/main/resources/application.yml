@@ -6,19 +6,28 @@ spring:
     name: AUTH-SERVICE
 
   datasource:
-    url: jdbc:mysql://localhost:3306/gateway_practice
+    # 🔥 FIX: CI/Docker MySQL service use karne ke liye localhost nahi, "mysql" host use hota hai
+    url: jdbc:mysql://mysql:3306/ems_db
+
+    # 🔥 FIX: CI MySQL credentials same hone chahiye jo GitHub Actions me set kiye hain
     username: root
-    password: Nmn@1234
+    password: root
+
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
+      # ⚠️ NOTE: CI/testing me ok, production me careful
       ddl-auto: update
+
     show-sql: true
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      # 🔥 FIX: localhost CI/Docker me kaam nahi karega
+      # agar eureka docker me hai to "eureka-server" use karna hoga
+      defaultZone: http://eureka-server:8761/eureka
+
     register-with-eureka: true
     fetch-registry: true

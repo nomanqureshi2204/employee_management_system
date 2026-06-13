@@ -8,6 +8,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    # 🔥 MySQL container for all services
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: ems_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -24,11 +39,15 @@ jobs:
           java -version
           mvn -version
 
+      # 🔥 Wait for DB to be ready (IMPORTANT)
+      - name: Wait for MySQL
+        run: sleep 20
+
       # 🔥 STEP 1: Build shared dependency FIRST
       - name: Build Common Library
         run: mvn -f common-library/pom.xml clean install
 
-      # 🔥 STEP 2: Now build all services
+      # 🔥 STEP 2: Build + Test all services
       - name: Build & Test Auth Service
         run: mvn -f auth-service/pom.xml clean verify
 

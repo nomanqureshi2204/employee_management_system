@@ -1,18 +1,24 @@
 server:
-  port: 8083
+  port: 8084
 
 spring:
   application:
-    name: PROJECT-SERVICE
+    name: CLIENT-SERVICE
 
   datasource:
-    url: jdbc:mysql://localhost:3306/ems_db
+    # 🔥 FIX: localhost CI/Docker me kaam nahi karta
+    # mysql = GitHub Actions Docker service name
+    url: jdbc:mysql://mysql:3306/ems_db
+
+    # 🔥 FIX: CI MySQL credentials (same as GitHub Actions)
     username: root
-    password: Nmn@1234
+    password: root
+
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
+      # ⚠️ CI/testing me ok, production me careful
       ddl-auto: update
 
     show-sql: true
@@ -24,4 +30,6 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      # 🔥 FIX: localhost works only on your system
+      # CI/Docker me service name use hota hai
+      defaultZone: http://eureka-server:8761/eureka/

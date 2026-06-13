@@ -2,6 +2,7 @@ server:
   port: 8082
 
 jwt:
+  # ⚠️ NOTE: secret same rakho across services (auth + employee etc.)
   secret: mysecretkeymysecretkeymysecretkey12
 
 spring:
@@ -9,13 +10,18 @@ spring:
     name: EMPLOYEE-SERVICE
 
   datasource:
-    url: jdbc:mysql://localhost:3306/ems_db
+    # 🔥 FIX: localhost CI/Docker me work nahi karega
+    url: jdbc:mysql://mysql:3306/ems_db
+
+    # 🔥 FIX: CI MySQL credentials
     username: root
-    password: Nmn@1234
+    password: root
+
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
+      # ⚠️ CI/testing friendly (production me validate/update carefully)
       ddl-auto: update
 
     show-sql: true
@@ -27,4 +33,5 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      # 🔥 FIX: Docker/Eureka service name use karo
+      defaultZone: http://eureka-server:8761/eureka/
