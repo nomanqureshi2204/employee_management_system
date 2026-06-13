@@ -19,7 +19,8 @@ public class ClientResponseDto {
 
     
 
-  
+    public ClientResponseDto() {
+    }
 
     // constructor
     public ClientResponseDto(

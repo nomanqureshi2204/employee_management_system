@@ -1,10 +1,10 @@
-package com.example.eureka_server;
+package com.ems.employee.test;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AuthServiceApplicationTests {
+class EmployeeServiceApplicationTests {
 
 	@Test
 	void contextLoads() {

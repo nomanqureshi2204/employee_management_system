@@ -1,10 +1,10 @@
-package com.example.gateway;
+package com.ems.auth.test;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DashboardServiceApplicationTests {
+class AuthServiceApplicationTests {
 
 	@Test
 	void contextLoads() {

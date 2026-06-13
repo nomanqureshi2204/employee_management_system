@@ -12,38 +12,35 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Setup JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: temurin
+          java-version: 17
           cache: maven
 
-      - name: Verify Java Version
+      - name: Verify Environment
         run: |
           java -version
           mvn -version
 
-      - name: Build Common Library
-        run: mvn -f common-library/pom.xml clean install -DskipTests
+      - name: Build & Test Auth Service
+        run: mvn -f auth-service/pom.xml clean verify
 
-      - name: Build Auth Service
-        run: mvn -f auth-service/pom.xml clean install -DskipTests
+      - name: Build & Test Project Service
+        run: mvn -f project-service/pom.xml clean verify
 
-      - name: Build Project Service
-        run: mvn -f project-service/pom.xml clean install -DskipTests
+      - name: Build & Test Employee Service
+        run: mvn -f employee-service/pom.xml clean verify
 
-      - name: Build Employee Service
-        run: mvn -f employee-service/pom.xml clean install -DskipTests
+      - name: Build & Test Client Service
+        run: mvn -f client-service/pom.xml clean verify
 
-      - name: Build Client Service
-        run: mvn -f client-service/pom.xml clean install -DskipTests
+      - name: Build & Test Dashboard Service
+        run: mvn -f dashboard-service/pom.xml clean verify
 
-      - name: Build Dashboard Service
-        run: mvn -f dashboard-service/pom.xml clean install -DskipTests
+      - name: Build & Test API Gateway
+        run: mvn -f api-gateway/pom.xml clean verify
 
-      - name: Build API Gateway
-        run: mvn -f api-gateway/pom.xml clean install -DskipTests
-
-      - name: Build Eureka Server
-        run: mvn -f eureka-server/pom.xml clean install -DskipTests
+      - name: Build & Test Eureka Server
+        run: mvn -f eureka-server/pom.xml clean verify
