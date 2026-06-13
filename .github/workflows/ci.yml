@@ -24,6 +24,11 @@ jobs:
           java -version
           mvn -version
 
+      # 🔥 STEP 1: Build shared dependency FIRST
+      - name: Build Common Library
+        run: mvn -f common-library/pom.xml clean install
+
+      # 🔥 STEP 2: Now build all services
       - name: Build & Test Auth Service
         run: mvn -f auth-service/pom.xml clean verify
 
