@@ -9,31 +9,31 @@ spring:
     gateway:
       routes:
 
-        # AUTH SERVICE
+        # 🔥 AUTH SERVICE
         - id: auth-service
           uri: lb://AUTH-SERVICE
           predicates:
             - Path=/auth/**
 
-        # EMPLOYEE SERVICE
+        # 🔥 EMPLOYEE SERVICE
         - id: employee-service
           uri: lb://EMPLOYEE-SERVICE
           predicates:
             - Path=/employees/**
 
-        # PROJECT SERVICE
+        # 🔥 PROJECT SERVICE
         - id: project-service
           uri: lb://PROJECT-SERVICE
           predicates:
             - Path=/projects/**
 
-        # CLIENT SERVICE
+        # 🔥 CLIENT SERVICE
         - id: client-service
           uri: lb://CLIENT-SERVICE
           predicates:
             - Path=/clients/**
 
-        # DASHBOARD SERVICE
+        # 🔥 DASHBOARD SERVICE
         - id: dashboard-service
           uri: lb://DASHBOARD-SERVICE
           predicates:
@@ -48,7 +48,10 @@ springdoc:
 
 eureka:
   client:
+    # 🔥 FIX: localhost CI/Docker me work nahi karega
+    # service-name use hota hai
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://eureka-server:8761/eureka/
+
     register-with-eureka: true
     fetch-registry: true
