@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: CLIENT-SERVICE
+    name: PROJECT-SERVICE
 
   datasource:
     # 🔥 FIX: localhost CI/Docker me kaam nahi karta
