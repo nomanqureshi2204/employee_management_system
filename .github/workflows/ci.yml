@@ -32,51 +32,71 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # ❌ REMOVED MAVEN ROOT BUILD (this was causing your error)
-
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 🔥 AUTH SERVICE
+      # =========================
+      # 🔥 BUILD JARS FIRST
+      # =========================
+
+      - name: Build Auth Service JAR
+        run: mvn -f auth-service/pom.xml clean package -DskipTests
+
+      - name: Build Employee Service JAR
+        run: mvn -f employee-service/pom.xml clean package -DskipTests
+
+      - name: Build Client Service JAR
+        run: mvn -f client-service/pom.xml clean package -DskipTests
+
+      - name: Build Dashboard Service JAR
+        run: mvn -f dashboard-service/pom.xml clean package -DskipTests
+
+      - name: Build API Gateway JAR
+        run: mvn -f api-gateway/pom.xml clean package -DskipTests
+
+      - name: Build Eureka Server JAR
+        run: mvn -f eureka-server/pom.xml clean package -DskipTests
+
+      - name: Build Project Service JAR
+        run: mvn -f project-service/pom.xml clean package -DskipTests
+
+      # =========================
+      # 🐳 DOCKER BUILD + PUSH
+      # =========================
+
       - name: Build & Push Auth Service
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/auth-service:1.0 ./auth-service
           docker push ${{ secrets.DOCKER_USERNAME }}/auth-service:1.0
 
-      # 🔥 EMPLOYEE SERVICE
       - name: Build & Push Employee Service
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/employee-service:1.0 ./employee-service
           docker push ${{ secrets.DOCKER_USERNAME }}/employee-service:1.0
 
-      # 🔥 CLIENT SERVICE
       - name: Build & Push Client Service
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/client-service:1.0 ./client-service
           docker push ${{ secrets.DOCKER_USERNAME }}/client-service:1.0
 
-      # 🔥 DASHBOARD SERVICE
       - name: Build & Push Dashboard Service
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/dashboard-service:1.0 ./dashboard-service
           docker push ${{ secrets.DOCKER_USERNAME }}/dashboard-service:1.0
 
-      # 🔥 API GATEWAY
       - name: Build & Push API Gateway
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/api-gateway:1.0 ./api-gateway
           docker push ${{ secrets.DOCKER_USERNAME }}/api-gateway:1.0
 
-      # 🔥 EUREKA SERVER
       - name: Build & Push Eureka Server
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/eureka-server:1.0 ./eureka-server
           docker push ${{ secrets.DOCKER_USERNAME }}/eureka-server:1.0
 
-      # 🔥 PROJECT SERVICE
       - name: Build & Push Project Service
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/project-service:1.0 ./project-service
