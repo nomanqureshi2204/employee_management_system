@@ -1,14 +1,13 @@
-name: EMS CI Pipeline
+name: EMS CI/CD Pipeline
 
 on:
   push:
     branches: [ "master" ]
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
 
-    # 🔥 MySQL container for all services
     services:
       mysql:
         image: mysql:8
@@ -34,37 +33,53 @@ jobs:
           java-version: 17
           cache: maven
 
-      - name: Verify Environment
+      - name: Build Project (skip tests)
+        run: mvn clean package -DskipTests
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 🔥 AUTH SERVICE
+      - name: Build & Push Auth Service
         run: |
-          java -version
-          mvn -version
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/auth-service:1.0 ./auth-service
+          docker push ${{ secrets.DOCKER_USERNAME }}/auth-service:1.0
 
-      # 🔥 Wait for MySQL to be ready
-      - name: Wait for MySQL
-        run: sleep 25
+      # 🔥 EMPLOYEE SERVICE
+      - name: Build & Push Employee Service
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/employee-service:1.0 ./employee-service
+          docker push ${{ secrets.DOCKER_USERNAME }}/employee-service:1.0
 
-      # 🔥 Build Common Library first
-      - name: Build Common Library
-        run: mvn -f common-library/pom.xml clean install -DskipTests
+      # 🔥 CLIENT SERVICE
+      - name: Build & Push Client Service
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/client-service:1.0 ./client-service
+          docker push ${{ secrets.DOCKER_USERNAME }}/client-service:1.0
 
-      # 🔥 Build all services (tests skipped)
-      - name: Build Auth Service
-        run: mvn -f auth-service/pom.xml clean package -DskipTests
+      # 🔥 DASHBOARD SERVICE
+      - name: Build & Push Dashboard Service
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/dashboard-service:1.0 ./dashboard-service
+          docker push ${{ secrets.DOCKER_USERNAME }}/dashboard-service:1.0
 
-      - name: Build Project Service
-        run: mvn -f project-service/pom.xml clean package -DskipTests
+      # 🔥 API GATEWAY
+      - name: Build & Push API Gateway
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/api-gateway:1.0 ./api-gateway
+          docker push ${{ secrets.DOCKER_USERNAME }}/api-gateway:1.0
 
-      - name: Build Employee Service
-        run: mvn -f employee-service/pom.xml clean package -DskipTests
+      # 🔥 EUREKA SERVER
+      - name: Build & Push Eureka Server
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/eureka-server:1.0 ./eureka-server
+          docker push ${{ secrets.DOCKER_USERNAME }}/eureka-server:1.0
 
-      - name: Build Client Service
-        run: mvn -f client-service/pom.xml clean package -DskipTests
-
-      - name: Build Dashboard Service
-        run: mvn -f dashboard-service/pom.xml clean package -DskipTests
-
-      - name: Build API Gateway
-        run: mvn -f api-gateway/pom.xml clean package -DskipTests
-
-      - name: Build Eureka Server
-        run: mvn -f eureka-server/pom.xml clean package -DskipTests
+      # 🔥 PROJECT SERVICE
+      - name: Build & Push Project Service
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/project-service:1.0 ./project-service
+          docker push ${{ secrets.DOCKER_USERNAME }}/project-service:1.0
